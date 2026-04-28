@@ -10,6 +10,18 @@
 
 <body>
   <div id="app">
+    <div class="container-fluid p-5 bg-dark text-white">
+      <h1>RSS агрегатор</h1>
+      <p>Начните читать RSS сегодня. Это легко, это красиво</p>
+      <form class="form-floating mb-3 d-flex gap-3">
+        <input class="form-control" type="text" id="link" name="link" value="" placeholder="Ссылка RSS">
+        <label class="form-label" for="link">Ссылка RSS</label>
+        <button type="button" class="btn btn-secondary">Добавить</button>
+      </form>
+      <p class="text-secondary">Пример:
+        <a class="text-secondary" href="https://lorem-rss.hexlet.app/feed">https://lorem-rss.hexlet.app/feed</a>
+      </p>
+    </div>
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>
