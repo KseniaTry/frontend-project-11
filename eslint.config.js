@@ -8,9 +8,9 @@ export default [
       ecmaVersion: "latest",
       sourceType: "module",
       globals: {
-        ...globals.browser,     // Глобальные переменные браузера (window, fetch)
-        ...globals.node         // Глобальные переменные Node.js (process)
-      }
+        ...globals.browser,
+        ...globals.node,
+      },
     },
     rules: {
       "no-console": "warn",     // Предупреждать об использовании console.log
