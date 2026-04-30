@@ -3,15 +3,13 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import * as yup from 'yup'
 import { proxy, subscribe, snapshot } from 'valtio/vanilla'
 
-let schema = yup.object({
-  website: yup
-    .string()
+const validate = async (value, links) => {
+  const schema = yup.string()
     .url('Ссылка должна быть валидным URL')
     .required('Не должно быть пустым')
-});
+    .notOneOf(links, 'RSS уже существует')
 
-const validate = async (value) => {
-  await schema.validate(value)
+  await schema.validate(value, links)
     .then(() => {
       state.formData.error = null
       state.formData.status = 'valid'
@@ -57,7 +55,6 @@ const updateUi = () => {
       input.focus()
     default: break
   }
-
 }
 
 subscribe(state, updateUi)
@@ -71,8 +68,7 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault()
 
   try {
-    await validate({ website: state.formData.value })
-
+    await validate(state.formData.value, state.formData.links)
     const { status, value } = snapshot(state).formData
 
     if (status === 'valid') {
