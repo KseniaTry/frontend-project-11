@@ -1,25 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-import * as yup from 'yup'
 import { proxy, snapshot } from 'valtio/vanilla'
 import updateUi from './render'
-
-const validate = async (value, links) => {
-  const schema = yup.string()
-    .url('Ссылка должна быть валидным URL')
-    .required('Не должно быть пустым')
-    .notOneOf(links, 'RSS уже существует')
-
-  await schema.validate(value, links)
-    .then(() => {
-      state.formData.error = null
-      state.formData.status = 'valid'
-    })
-    .catch((err) => {
-      state.formData.error = err.message
-      state.formData.status = 'invalid'
-    })
-}
+import * as yup from 'yup'
+import { setLocale } from 'yup'
+import initI18n from './texts'
 
 const state = proxy({
   formData: {
@@ -29,6 +14,34 @@ const state = proxy({
     links: []
   }
 })
+
+const initSetLocale = (i18n) => {
+  setLocale({
+    string: {
+      url: () => i18n.t('errors.url'),
+      required: () => i18n.t('errors.required'),
+      notOneOf: () => i18n.t('errors.notOneOf')
+    }
+  })
+}
+
+const validate = async (state) => {
+  const i18n = await initI18n()
+  initSetLocale(i18n)
+  const { value, links } = state.formData
+
+  const schema = yup.string().url().required().notOneOf(links)
+
+  await schema.validate(value, links, { abortEarly: false })
+    .then(() => {
+      state.formData.error = null
+      state.formData.status = 'valid'
+    })
+    .catch((err) => {
+      state.formData.error = err.message
+      state.formData.status = 'invalid'
+    })
+}
 
 const input = document.querySelector('[data-name="link-input"]')
 const form = document.querySelector('[data-name="form"]')
@@ -42,7 +55,8 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault()
 
   try {
-    await validate(state.formData.value, state.formData.links)
+    await validate(state)
+
     const { status, value } = snapshot(state).formData
 
     if (status === 'valid') {
