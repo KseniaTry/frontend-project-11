@@ -1,7 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import * as yup from 'yup'
-import { proxy, subscribe, snapshot } from 'valtio/vanilla'
+import { proxy, snapshot } from 'valtio/vanilla'
+import updateUi from './render'
 
 const validate = async (value, links) => {
   const schema = yup.string()
@@ -31,33 +32,6 @@ const state = proxy({
 
 const input = document.querySelector('[data-name="link-input"]')
 const form = document.querySelector('[data-name="form"]')
-const feedback = document.querySelector('#feedback')
-
-const updateUi = () => {
-  const { status, error } = snapshot(state).formData
-
-  switch (status) {
-    case 'valid':
-      input.classList.remove('is-invalid')
-      input.classList.add('is-valid')
-      feedback.textContent = ''
-      break
-    case 'invalid':
-      input.classList.remove('is-valid')
-      input.classList.add('is-invalid')
-      feedback.textContent = error
-      break
-    case 'added':
-      input.classList.remove('is-valid')
-      input.focus()
-      form.reset()
-    case 'filling':
-      input.focus()
-    default: break
-  }
-}
-
-subscribe(state, updateUi)
 
 input.addEventListener('input', (e) => {
   state.formData.value = e.target.value
@@ -81,4 +55,4 @@ form.addEventListener('submit', async (e) => {
   }
 })
 
-updateUi()
+updateUi(state)
