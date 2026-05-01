@@ -12,7 +12,7 @@ export default async () => {
           description: 'Начните читать RSS сегодня. Это легко, это красиво',
           errors: {
             url: 'Ссылка должна быть валидным URL',
-            empty: 'Не должно быть пустым',
+            required: 'Не должно быть пустым',
             notOneOf: 'RSS уже существует'
           },
           label: 'Ссылка RSS',

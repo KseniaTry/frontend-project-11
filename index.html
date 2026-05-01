@@ -11,15 +11,15 @@
 <body>
   <div id="app">
     <div class="container-fluid p-5 bg-dark text-white">
-      <h1>RSS агрегатор</h1>
-      <p>Начните читать RSS сегодня. Это легко, это красиво</p>
+      <h1 data-name="title"></h1>
+      <p data-name="description"></p>
       <form class="form-floating mb-3 d-flex flex-wrap gap-3" data-name="form" type="post">
-        <input class="form-control w-75" type="text" id="link" name="link" value="" data-name="link-input"
-          placeholder="Ссылка RSS" aria-describedby="feedback">
-        <label class="form-label" for="link">Ссылка RSS</label>
-        <button type="submit" data-name="add-button" class="btn btn-secondary">Добавить</button>
-        <div class="form-text text-secondary">Пример:
-          <a class="text-secondary" href="https://lorem-rss.hexlet.app/feed">https://lorem-rss.hexlet.app/feed</a>
+        <input class="form-control w-75" type="text" id="link" name="link" value="" data-name="add-link-input">
+        <label class="form-label" for="link" data-name="add-link-label"></label>
+        <button type="submit" data-name="add-button" class="btn btn-secondary"></button>
+        <div class="form-text text-secondary">
+          <span data-name="example-text"></span>
+          <a class="text-secondary" data-name="example-link" href="https://lorem-rss.hexlet.app/feed"></a>
         </div>
         <div id="feedback" class="invalid-feedback order-last"></div>
       </form>
