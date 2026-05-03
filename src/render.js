@@ -41,4 +41,74 @@ const updateUi = (state) => {
   subscribe(state, updateUi)
 }
 
-export { renderText, updateUi }
+const renderRSSContainer = () => {
+  const container = document.createElement('div')
+  const row = document.createElement('div')
+  const postsCol = document.createElement('div')
+  const feedsCol = document.createElement('div')
+  const postsTitle = document.createElement('h2')
+  const feedssTitle = document.createElement('h2')
+
+  container.classList.add('container-fluid', 'p-5')
+  row.classList.add('row', 'g-3')
+  postsCol.classList.add('col-md-8', 'p-2')
+  feedsCol.classList.add('col-md-4', 'p-2')
+
+  postsTitle.textContent = 'Посты'
+  feedssTitle.textContent = 'Фиды'
+
+  postsCol.dataset.name = 'posts-container'
+  feedsCol.dataset.name = 'feeds-container'
+  postsCol.append(postsTitle)
+  feedsCol.append(feedssTitle)
+  const app = document.querySelector('#app')
+
+  row.append(postsCol, feedsCol)
+  container.append(row)
+  app.append(container)
+}
+
+const createItem = (itemState) => {
+  const item = document.createElement('div')
+  const title = document.createElement('h3')
+  const description = document.createElement('p')
+  const link = document.createElement('a')
+
+  link.href = itemState.link
+  link.textContent = itemState.title
+  description.textContent = itemState.description
+  title.append(link)
+  item.append(title, description)
+
+  return item
+}
+
+const renderFeed = (state) => {
+  const feedsContainer = document.querySelector('[data-name="feeds-container"]')
+  const { feeds } = state.feed
+
+  feeds.forEach((feed) => {
+    const newFeed = createItem(feed)
+    newFeed.className = 'border rounded p-3 bg-dark shadow-sm text-white'
+    feedsContainer.append(newFeed)
+  })
+}
+
+const renderPost = (state) => {
+  const postsContainer = document.querySelector('[data-name="posts-container"]')
+  const { posts } = state.feed
+
+  posts.forEach((post) => {
+    const newPost = createItem(post)
+    newPost.className = 'd-flex gap-3 border rounded p-3 bg-light shadow-sm'
+    postsContainer.append(newPost)
+  })
+}
+
+const renderRSS = (state) => {
+  renderRSSContainer()
+  renderFeed(state)
+  renderPost(state)
+}
+
+export { renderText, updateUi, renderRSS }
