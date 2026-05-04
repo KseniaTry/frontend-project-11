@@ -16,13 +16,12 @@ const updateUi = (state) => {
     const form = document.querySelector('[data-name="form"]')
     const feedback = document.querySelector('#feedback')
 
-    const { status, error } = state.formData
-    const { isUpdated } = state.feed
+    const { status: formStatus, error } = state.formData
+    const { status: loadingStatus } = state.feed
 
-    switch (status) {
+    switch (formStatus) {
       case 'valid':
         input.classList.remove('is-invalid')
-        // input.classList.add('is-valid')
         feedback.textContent = ''
         input.focus()
         form.reset()
@@ -39,11 +38,18 @@ const updateUi = (state) => {
       default: break
     }
 
-    if (isUpdated) {
-      renderRSS(state)
+    switch (loadingStatus) {
+      case 'idle':
+        break
+      case 'success':
+        renderRSS(state)
+        break
+      case 'failed':
+        break
+      default:
+        break
     }
   }
-
   subscribe(state, updateUi)
 }
 

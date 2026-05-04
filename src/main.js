@@ -26,6 +26,10 @@ i18n.init({
         add: 'Добавить',
         example: 'Пример:',
         exampleLink: 'https://lorem-rss.hexlet.app/feed',
+        loadingResult: {
+          success: 'RSS успешно загружен',
+          fail: 'Ссылка не является RSS'
+        }
       }
     }
   }
@@ -40,14 +44,15 @@ function initApp() {
   const state = proxy({
     formData: {
       value: '',
-      status: 'filling', // 'valid', 'invalid', 'updating', 'finished'
+      status: 'filling', // 'valid', 'invalid'
       error: null,
       links: [],
     },
     feed: {
       feeds: [],
       posts: [],
-      isUpdated: false
+      isUpdated: false,
+      status: 'idle' // 'loading', 'success', 'failed'
     }
   })
 
@@ -124,6 +129,7 @@ function initApp() {
     // Проверка на ошибку парсинга
     const error = result.querySelector('parsererror')
     if (error) {
+      state.formData.status = 'failed'
       throw new Error('parseError')
     }
 
@@ -140,14 +146,12 @@ function initApp() {
         return parseXMLtoDOM(xml)
       })
       .then(dom => {
+        state.feed.status = 'loading'
         addPostsToState(dom, state)
-        state.feed.isUpdated = true
-        console.log(state.feed.isUpdated)
       })
-      .then(() => state.feed.isUpdated = false)
+      .then(() => state.feed.status = 'success')
       .catch(err => console.error('Что-то пошло не так:', err))
 
-    console.log(state.feed.isUpdated)
     setTimeout(checkUpdates, 5000, link)
   }
 
