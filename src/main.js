@@ -6,7 +6,6 @@ import * as yup from 'yup'
 import { setLocale } from 'yup'
 import i18next from 'i18next'
 import axios from 'axios'
-import { renderRSS } from './render'
 import { nanoid } from 'nanoid'
 
 const i18n = i18next.createInstance();
@@ -26,7 +25,7 @@ i18n.init({
         label: 'Ссылка RSS',
         add: 'Добавить',
         example: 'Пример:',
-        exampleLink: 'https://lorem-rss.hexlet.app/feed'
+        exampleLink: 'https://lorem-rss.hexlet.app/feed',
       }
     }
   }
@@ -41,13 +40,14 @@ function initApp() {
   const state = proxy({
     formData: {
       value: '',
-      status: 'filling', // 'valid', 'invalid'
+      status: 'filling', // 'valid', 'invalid', 'updating', 'finished'
       error: null,
       links: [],
     },
     feed: {
       feeds: [],
-      posts: []
+      posts: [],
+      isUpdated: false
     }
   })
 
@@ -98,16 +98,19 @@ function initApp() {
         state.formData.status = 'invalid'
       })
 
-    // links.forEach((link) => {
-    //   getUpdates(link)
 
+
+    // links.forEach((link) => {
+    //   // https://lorem-rss.hexlet.app/feed?unit=second&interval=30
+    //   checkUpdates(link)
     // })
 
-    const k = getUpdates('https://lorem-rss.hexlet.app/feed')
+    checkUpdates('https://lorem-rss.hexlet.app/feed?unit=second&interval=30')
   })
 
   updateUi(state)
   renderText(i18n)
+
 
   const getAllOriginsLink = (link) => {
     const normalized = encodeURIComponent(link)
@@ -116,11 +119,18 @@ function initApp() {
 
   const parseXMLtoDOM = (xml) => {
     const parser = new DOMParser()
-    const result = parser.parseFromString(xml, 'application/xml');
+    const result = parser.parseFromString(xml, 'application/xml')
+
+    // Проверка на ошибку парсинга
+    const error = result.querySelector('parsererror')
+    if (error) {
+      throw new Error('parseError')
+    }
+
     return result
   }
 
-  function getUpdates(link) {
+  function checkUpdates(link) {
     const modifiedLink = getAllOriginsLink(link)
 
     axios
@@ -130,37 +140,51 @@ function initApp() {
         return parseXMLtoDOM(xml)
       })
       .then(dom => {
-        addPostsToState(dom)
-        console.log(dom)
-        console.log(state.feed)
-        renderRSS(state)
+        addPostsToState(dom, state)
+        state.feed.isUpdated = true
+        console.log(state.feed.isUpdated)
       })
+      .then(() => state.feed.isUpdated = false)
       .catch(err => console.error('Что-то пошло не так:', err))
+
+    console.log(state.feed.isUpdated)
+    setTimeout(checkUpdates, 5000, link)
   }
 
-  function addPostsToState(domEl) {
-    const getData = (domEl, id) => {
-      const title = domEl.querySelector('title').textContent
-      const description = domEl.querySelector('description').textContent
+  function addPostsToState(domEl, state) {
+    const { feeds } = state.feed
+
+    // обновляет данные из стейта (feeds posts)
+    const updateData = (domEl, id, data) => {
       const link = domEl.querySelector('link').textContent
-      const pubDate = domEl.querySelector('pubDate').textContent
+      const isLinkExist = data.some((item) => item.link === link);
 
-      return {
-        id,
-        title,
-        description,
-        link,
-        pubDate
+      if (!isLinkExist) {
+        const newItem = {
+          id,
+          link,
+          title: domEl.querySelector('title')?.textContent,
+          description: domEl.querySelector('description')?.textContent,
+          pubDate: domEl.querySelector('pubDate')?.textContent,
+        };
+        return [...data, newItem]
       }
-    }
-    const id = nanoid()
-    const newFeed = getData(domEl, id)
-    state.feed.feeds.push(newFeed)
 
+      return data
+    }
+
+    const id = nanoid()
+    // обновляем фиды
+    const newFeeds = updateData(domEl, id, feeds)
+    state.feed.feeds = newFeeds
+
+    // обновляем посты
     const items = domEl.querySelectorAll('item')
+
     items.forEach((item) => {
-      const newPost = getData(item, id)
-      state.feed.posts.push(newPost)
+      const { posts } = state.feed
+      const newPosts = updateData(item, id, posts)
+      state.feed.posts = newPosts
     })
   }
 }

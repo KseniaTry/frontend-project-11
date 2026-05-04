@@ -17,6 +17,7 @@ const updateUi = (state) => {
     const feedback = document.querySelector('#feedback')
 
     const { status, error } = state.formData
+    const { isUpdated } = state.feed
 
     switch (status) {
       case 'valid':
@@ -25,6 +26,7 @@ const updateUi = (state) => {
         feedback.textContent = ''
         input.focus()
         form.reset()
+        renderRSSContainer()
         break
       case 'invalid':
         input.classList.remove('is-valid')
@@ -36,31 +38,35 @@ const updateUi = (state) => {
         break
       default: break
     }
+
+    if (isUpdated) {
+      renderRSS(state)
+    }
   }
 
   subscribe(state, updateUi)
 }
 
-const renderRSSContainer = () => {
+function renderRSSContainer() {
+  const rssContainer = document.querySelector('[data-name="rss-container"]')
+
+  if (rssContainer) {
+    return
+  }
   const container = document.createElement('div')
   const row = document.createElement('div')
   const postsCol = document.createElement('div')
   const feedsCol = document.createElement('div')
-  const postsTitle = document.createElement('h2')
-  const feedssTitle = document.createElement('h2')
 
   container.classList.add('container-fluid', 'p-5')
+  container.dataset.name = 'rss-container'
   row.classList.add('row', 'g-3')
   postsCol.classList.add('col-md-8', 'p-2')
   feedsCol.classList.add('col-md-4', 'p-2')
 
-  postsTitle.textContent = 'Посты'
-  feedssTitle.textContent = 'Фиды'
-
   postsCol.dataset.name = 'posts-container'
   feedsCol.dataset.name = 'feeds-container'
-  postsCol.append(postsTitle)
-  feedsCol.append(feedssTitle)
+
   const app = document.querySelector('#app')
 
   row.append(postsCol, feedsCol)
@@ -83,8 +89,13 @@ const createItem = (itemState) => {
   return item
 }
 
-const renderFeed = (state) => {
+const renderFeeds = (state) => {
   const feedsContainer = document.querySelector('[data-name="feeds-container"]')
+  feedsContainer.innerHTML = ''
+  const feedsTitle = document.createElement('h2')
+  feedsTitle.textContent = 'Фиды'
+  feedsContainer.append(feedsTitle)
+
   const { feeds } = state.feed
 
   feeds.forEach((feed) => {
@@ -94,8 +105,13 @@ const renderFeed = (state) => {
   })
 }
 
-const renderPost = (state) => {
+const renderPosts = (state) => {
   const postsContainer = document.querySelector('[data-name="posts-container"]')
+  postsContainer.innerHTML = ''
+  const postsTitle = document.createElement('h2')
+  postsTitle.textContent = 'Посты'
+  postsContainer.append(postsTitle)
+
   const { posts } = state.feed
 
   posts.forEach((post) => {
@@ -106,9 +122,8 @@ const renderPost = (state) => {
 }
 
 const renderRSS = (state) => {
-  renderRSSContainer()
-  renderFeed(state)
-  renderPost(state)
+  renderFeeds(state)
+  renderPosts(state)
 }
 
-export { renderText, updateUi, renderRSS }
+export { renderText, updateUi, renderRSS, renderRSSContainer }
