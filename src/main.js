@@ -28,7 +28,8 @@ i18n.init({
         exampleLink: 'https://lorem-rss.hexlet.app/feed',
         loadingResult: {
           success: 'RSS успешно загружен',
-          fail: 'Ссылка не является RSS'
+          parseFailed: 'Ссылка не является RSS',
+          loadingFailed: 'Ошибка загрузки RSS ленты'
         }
       }
     }
@@ -51,8 +52,8 @@ function initApp() {
     feed: {
       feeds: [],
       posts: [],
-      isUpdated: false,
-      status: 'idle' // 'loading', 'success', 'failed'
+      status: 'idle', // 'loading', 'success', 'failed', 'parseFailed'
+      timers: {}
     }
   })
 
@@ -70,10 +71,12 @@ function initApp() {
   }
   // инициация один раз
   initSetLocale(i18n)
+  updateUi(state)
+  renderText(i18n)
 
   // валидация поля
   const validate = (state) => {
-    const { value, links } = snapshot(state).formData
+    const { value, links } = state.formData
     const schema = yup.string().url().required().notOneOf(links)
     return schema.validate(value)
   }
@@ -88,7 +91,8 @@ function initApp() {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault()
-    const { value, links } = state.formData
+    const { value } = state.formData
+
     // get form data использовать!!
     validate(state)
       .then(() => {
@@ -96,26 +100,19 @@ function initApp() {
         state.formData.status = 'valid'
         state.formData.value = '';
         state.formData.error = null
+        console.log('vakid')
+      })
+      .then(() => {
+        checkUpdates(value) // проверяем обновления только новой добавленной ссылки
       })
       .catch((err) => {
-        initSetLocale(i18n)
         state.formData.error = err.message
         state.formData.status = 'invalid'
+        console.log('invalid')
       })
 
-
-
-    // links.forEach((link) => {
-    //   // https://lorem-rss.hexlet.app/feed?unit=second&interval=30
-    //   checkUpdates(link)
-    // })
-
-    checkUpdates('https://lorem-rss.hexlet.app/feed?unit=second&interval=30')
+    // checkUpdates('https://lorem-rss.hexlet.app/feed?unit=second&interval=30')
   })
-
-  updateUi(state)
-  renderText(i18n)
-
 
   const getAllOriginsLink = (link) => {
     const normalized = encodeURIComponent(link)
@@ -125,19 +122,35 @@ function initApp() {
   const parseXMLtoDOM = (xml) => {
     const parser = new DOMParser()
     const result = parser.parseFromString(xml, 'application/xml')
-
+    console.log('parse')
     // Проверка на ошибку парсинга
     const error = result.querySelector('parsererror')
     if (error) {
-      state.formData.status = 'failed'
+      state.feed.status = 'parseFailed'
+      // return
+      console.log(state.feed.status)
       throw new Error('parseError')
     }
 
+    state.feed.status = 'success'
     return result
+  }
+
+
+  function stopUpdates(link) {
+    const id = state.feed.timers[link];
+    if (id) {
+      clearTimeout(id);
+      delete state.feed.timers[link];
+      // console.log(`Обновления для ${link} остановлены`);
+    }
   }
 
   function checkUpdates(link) {
     const modifiedLink = getAllOriginsLink(link)
+    console.log('check')
+
+    clearTimeout(state.feed.timers[link])
 
     axios
       .get(modifiedLink)
@@ -146,13 +159,18 @@ function initApp() {
         return parseXMLtoDOM(xml)
       })
       .then(dom => {
-        state.feed.status = 'loading'
+        console.log('add posts')
         addPostsToState(dom, state)
       })
-      .then(() => state.feed.status = 'success')
-      .catch(err => console.error('Что-то пошло не так:', err))
+      .catch(err => {
+        console.error('Что-то пошло не так:', err)
+        stopUpdates(link)
+      }
+      )
 
-    setTimeout(checkUpdates, 5000, link)
+    const timerId = setTimeout(checkUpdates, 5000, link)
+    state.feed.timers[link] = timerId;
+    console.log(timerId)
   }
 
   function addPostsToState(domEl, state) {
@@ -184,7 +202,6 @@ function initApp() {
 
     // обновляем посты
     const items = domEl.querySelectorAll('item')
-
     items.forEach((item) => {
       const { posts } = state.feed
       const newPosts = updateData(item, id, posts)
