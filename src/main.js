@@ -87,6 +87,8 @@ function initApp() {
   input.addEventListener('input', (e) => {
     state.formData.value = e.target.value
     state.formData.status = 'filling'
+    state.feed.status = 'idle'
+    console.log('click')
   })
 
   form.addEventListener('submit', (e) => {
@@ -104,6 +106,8 @@ function initApp() {
       })
       .then(() => {
         checkUpdates(value) // проверяем обновления только новой добавленной ссылки
+        state.feed.status = 'success'
+        state.formData.status = 'valid'
       })
       .catch((err) => {
         state.formData.error = err.message
@@ -127,12 +131,11 @@ function initApp() {
     const error = result.querySelector('parsererror')
     if (error) {
       state.feed.status = 'parseFailed'
-      // return
+      state.formData.status = 'invalid'
       console.log(state.feed.status)
       throw new Error('parseError')
     }
 
-    state.feed.status = 'success'
     return result
   }
 
