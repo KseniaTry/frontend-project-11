@@ -70,7 +70,30 @@ const renderForm = (state, elements) => {
   }
 }
 
-const createItem = (itemState) => {
+const createPostItem = (itemState) => {
+  const item = document.createElement('div')
+  const title = document.createElement('h3')
+  const description = document.createElement('p')
+  const link = document.createElement('a')
+  const linkButton = document.createElement('a')
+  const textContainer = document.createElement('div')
+
+  link.href = itemState.link
+  link.textContent = itemState.title
+  link.className = 'text-decoration-none fw-bold text-dark'
+  description.textContent = itemState.description
+  title.append(link)
+  linkButton.href = itemState.link
+  linkButton.className = 'btn btn-small border border-dark rounded p-3 text-decoration-none fw-bold text-dark'
+  linkButton.textContent = 'Просмотр'
+
+  textContainer.append(title, description)
+  item.append(textContainer, linkButton)
+
+  return item
+}
+
+const createFeedItem = (itemState) => {
   const item = document.createElement('div')
   const title = document.createElement('h3')
   const description = document.createElement('p')
@@ -78,8 +101,10 @@ const createItem = (itemState) => {
 
   link.href = itemState.link
   link.textContent = itemState.title
+  link.className = 'text-decoration-none fw-bold text-white'
   description.textContent = itemState.description
   title.append(link)
+
   item.append(title, description)
 
   return item
@@ -95,8 +120,8 @@ const renderFeeds = (state) => {
   const { feeds } = state.feed
 
   feeds.forEach((feed) => {
-    const newFeed = createItem(feed)
-    newFeed.className = 'border rounded p-3 bg-dark shadow-sm text-white'
+    const newFeed = createFeedItem(feed)
+    newFeed.className = 'border rounded p-3 bg-secondary shadow-sm text-white mb-3'
     feedsContainer.append(newFeed)
   })
 }
@@ -111,8 +136,8 @@ const renderPosts = (state) => {
   const { posts } = state.feed
 
   posts.forEach((post) => {
-    const newPost = createItem(post)
-    newPost.className = 'd-flex gap-3 border rounded p-3 bg-light shadow-sm'
+    const newPost = createPostItem(post)
+    newPost.className = 'd-flex gap-3 justify-content-between align-items-center border rounded p-3 bg-light shadow-sm mb-3'
     postsContainer.append(newPost)
   })
 }
@@ -128,15 +153,12 @@ const renderRSS = (state, elements) => {
       break
     case 'success':
       feedback.textContent = 'RSS успешно загружен'
-      // feedback.classList.replace('text-danger', 'text-success');
       renderFeeds(state)
       renderPosts(state)
-      // form.reset()
       break
     case 'failed':
       break
     case 'parseFailed':
-      // feedback.classList.replace('text-success', 'text-danger');
       feedback.textContent = 'Ссылка не является RSS'
       break
     default:
