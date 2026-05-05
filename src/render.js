@@ -10,50 +10,7 @@ const renderText = (i18n) => {
   document.querySelector('[data-name="example-link"]').textContent = i18n.t('exampleLink')
 }
 
-const updateUi = (state) => {
-  const updateUi = () => {
-    const input = document.querySelector('[data-name="add-link-input"]')
-    const form = document.querySelector('[data-name="form"]')
-    const feedback = document.querySelector('#feedback')
-
-    const { status: formStatus, error } = state.formData
-    const { status: loadingStatus } = state.feed
-
-    switch (formStatus) {
-      case 'valid':
-        input.classList.remove('is-invalid')
-        feedback.textContent = ''
-        input.focus()
-        form.reset()
-        renderRSSContainer()
-        break
-      case 'invalid':
-        input.classList.remove('is-valid')
-        input.classList.add('is-invalid')
-        feedback.textContent = error
-        break
-      case 'filling':
-        input.focus()
-        break
-      default: break
-    }
-
-    switch (loadingStatus) {
-      case 'idle':
-        break
-      case 'success':
-        renderRSS(state)
-        break
-      case 'failed':
-        break
-      default:
-        break
-    }
-  }
-  subscribe(state, updateUi)
-}
-
-function renderRSSContainer() {
+const renderRSSContainer = () => {
   const rssContainer = document.querySelector('[data-name="rss-container"]')
 
   if (rssContainer) {
@@ -78,6 +35,39 @@ function renderRSSContainer() {
   row.append(postsCol, feedsCol)
   container.append(row)
   app.append(container)
+}
+
+const renderForm = (state, elements) => {
+  const { status, error } = state.formData
+  const { input, feedback, form } = elements
+
+  switch (status) {
+    case 'valid':
+      input.classList.remove('is-invalid')
+      input.classList.add('is-valid')
+      feedback.classList.add('text-success')
+      feedback.classList.remove('text-danger')
+      feedback.textContent = ''
+      input.focus()
+      form.reset()
+      renderRSSContainer()
+      break
+    case 'invalid':
+      input.classList.remove('is-valid')
+      input.classList.add('is-invalid')
+      feedback.textContent = error
+      feedback.classList.add('text-danger')
+      feedback.classList.remove('text-success')
+      break
+    case 'filling':
+      // input.focus()
+      input.classList.remove('is-invalid')
+      input.classList.remove('is-valid')
+      feedback.classList.remove('text-danger', 'text-success')
+      feedback.textContent = ''
+      break
+    default: break
+  }
 }
 
 const createItem = (itemState) => {
@@ -127,9 +117,44 @@ const renderPosts = (state) => {
   })
 }
 
-const renderRSS = (state) => {
-  renderFeeds(state)
-  renderPosts(state)
+const renderRSS = (state, elements) => {
+  const { status } = state.feed
+  const { feedback, form } = elements
+
+  switch (status) {
+    case 'idle':
+      break
+    case 'loading':
+      break
+    case 'success':
+      feedback.textContent = 'RSS успешно загружен'
+      // feedback.classList.replace('text-danger', 'text-success');
+      renderFeeds(state)
+      renderPosts(state)
+      // form.reset()
+      break
+    case 'failed':
+      break
+    case 'parseFailed':
+      // feedback.classList.replace('text-success', 'text-danger');
+      feedback.textContent = 'Ссылка не является RSS'
+      break
+    default:
+      break
+  }
 }
 
-export { renderText, updateUi, renderRSS, renderRSSContainer }
+const updateUi = (state) => {
+  const elements = {
+    input: document.querySelector('[data-name="add-link-input"]'),
+    form: document.querySelector('[data-name="form"]'),
+    feedback: document.querySelector('#feedback'),
+  }
+
+  subscribe(state, () => {
+    renderForm(state, elements)
+    renderRSS(state, elements)
+  })
+}
+
+export { renderText, updateUi }
