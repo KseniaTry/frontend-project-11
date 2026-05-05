@@ -13,15 +13,17 @@
     <div class="container-fluid p-5 bg-dark text-white">
       <h1 data-name="title"></h1>
       <p data-name="description"></p>
-      <form class="form-floating mb-3 d-flex flex-wrap gap-3" data-name="form" type="post">
+      <form class="form-floating d-flex flex-wrap gap-3" data-name="form" type="post">
         <input class="form-control w-75" type="text" id="link" name="link" value="" data-name="add-link-input">
         <label class="form-label" for="link" data-name="add-link-label"></label>
         <button type="submit" data-name="add-button" class="btn btn-secondary"></button>
-        <div class="form-text text-secondary">
-          <span data-name="example-text"></span>
-          <a class="text-secondary" data-name="example-link" href="https://lorem-rss.hexlet.app/feed"></a>
+        <div>
+          <div class="form-text text-secondary mb-3">
+            <span data-name="example-text"></span>
+            <a class="text-secondary" data-name="example-link" href="https://lorem-rss.hexlet.app/feed"></a>
+          </div>
+          <p id="feedback" style="min-height: 1.5rem" class="order-last mb-0"></p>
         </div>
-        <div id="feedback" class="invalid-feedback order-last"></div>
       </form>
     </div>
   </div>
