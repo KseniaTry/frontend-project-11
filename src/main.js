@@ -52,8 +52,9 @@ function initApp() {
     feed: {
       feeds: [],
       posts: [],
-      status: 'idle', // 'loading', 'success', 'failed', 'parseFailed'
-      timers: {}
+      status: 'idle', // 'loading', 'success', 'failed', 'parseFailed', 'updated'
+      timers: {},
+      newPosts: []
     }
   })
 
@@ -88,7 +89,6 @@ function initApp() {
     state.formData.value = e.target.value
     state.formData.status = 'filling'
     state.feed.status = 'idle'
-    console.log('click')
   })
 
   form.addEventListener('submit', (e) => {
@@ -105,17 +105,19 @@ function initApp() {
         console.log('vakid')
       })
       .then(() => {
-        checkUpdates(value) // проверяем обновления только новой добавленной ссылки
+        getData(value)
         state.feed.status = 'success'
         state.formData.status = 'valid'
+      })
+      .then(() => {
+        checkUpdates(value, state)
+        // state.feed.status = 'idle'
       })
       .catch((err) => {
         state.formData.error = err.message
         state.formData.status = 'invalid'
         console.log('invalid')
       })
-
-    // checkUpdates('https://lorem-rss.hexlet.app/feed?unit=second&interval=30')
   })
 
   const getAllOriginsLink = (link) => {
@@ -139,7 +141,6 @@ function initApp() {
     return result
   }
 
-
   function stopUpdates(link) {
     const id = state.feed.timers[link];
     if (id) {
@@ -149,10 +150,28 @@ function initApp() {
     }
   }
 
-  function checkUpdates(link) {
+  // добавляем фиды и посты в стейт если была добавлена новая ссылка
+  function getData(link) {
     const modifiedLink = getAllOriginsLink(link)
-    console.log('check')
 
+    axios
+      .get(modifiedLink)
+      .then(response => {
+        const xml = response.data.contents.trim()
+        return parseXMLtoDOM(xml)
+      })
+      .then(dom => {
+        addDataToState(dom) // добавляем фиды и посты в стейт (так как добавлена новая ссылка)
+      })
+      .catch(err => {
+        console.error('Что-то пошло не так:', err)
+        // обработка ошибок 
+      })
+  }
+
+  function checkUpdates(link, state) {
+    // console.log(link)
+    const modifiedLink = getAllOriginsLink(link)
     clearTimeout(state.feed.timers[link])
 
     axios
@@ -162,53 +181,90 @@ function initApp() {
         return parseXMLtoDOM(xml)
       })
       .then(dom => {
-        console.log('add posts')
-        addPostsToState(dom, state)
+        const { posts } = snapshot(state.feed)
+        updatePosts(dom, state, posts)
+      }).then(() => {
+        const { newPosts } = state.feed
+        if (newPosts.length !== 0) {
+          state.feed.status = 'updated'
+        }
       })
       .catch(err => {
         console.error('Что-то пошло не так:', err)
         stopUpdates(link)
-      }
-      )
-
-    const timerId = setTimeout(checkUpdates, 5000, link)
-    state.feed.timers[link] = timerId;
-    console.log(timerId)
+      })
+      .finally(() => {
+        const timerId = setTimeout(() => checkUpdates(link, state), 5000)
+        state.feed.timers[link] = timerId
+      })
   }
 
-  function addPostsToState(domEl, state) {
-    const { feeds } = state.feed
+  // function startAutoUpdate() {
+  //   const { feeds } = state.feed
+  //   console.log('start')
+  //   console.log(feeds.length)
 
-    // обновляет данные из стейта (feeds posts)
-    const updateData = (domEl, id, data) => {
-      const link = domEl.querySelector('link').textContent
-      const isLinkExist = data.some((item) => item.link === link);
+  //   feeds.forEach((feed) => {
+  //     console.log(feed)
+  //     checkUpdates(feed.link, state)
+  //   })
+  // }
+
+  // добавление фидов и постов в стейт (первоначально при добавлении новой ссылки в поток)
+  function addDataToState(domEl) {
+    const id = nanoid()
+    const newFeed = {
+      id,
+      link: domEl.querySelector('link')?.textContent,
+      title: domEl.querySelector('title')?.textContent,
+      description: domEl.querySelector('description')?.textContent,
+      pubDate: domEl.querySelector('pubDate')?.textContent,
+    };
+
+    state.feed.feeds.push(newFeed)
+
+    const posts = domEl.querySelectorAll('item')
+    posts.forEach((post) => {
+      const newPost = {
+        id: nanoid(),
+        postId: id,
+        link: post.querySelector('link')?.textContent,
+        title: post.querySelector('title')?.textContent,
+        description: post.querySelector('description')?.textContent,
+        pubDate: post.querySelector('pubDate')?.textContent,
+      };
+      state.feed.posts.push(newPost)
+    })
+  }
+
+  // обновление постов существующей ленты с периодичностью 5 сек
+  function updatePosts(domEl, state, oldPosts) {
+    const { feeds } = state.feed
+    const feedLink = domEl.querySelector('link').textContent
+    // console.log(feedLink)
+    // console.log(feeds)
+    const items = domEl.querySelectorAll('item')
+    const feedId = feeds.find((feed) => feed.link === feedLink).id
+
+    items.forEach((item) => {
+      const link = item.querySelector('link')?.textContent
+      const isLinkExist = oldPosts.some((oldPost) => oldPost.link === link);
 
       if (!isLinkExist) {
-        const newItem = {
-          id,
+        const newPost = {
+          id: nanoid(),
+          postId: feedId,
           link,
-          title: domEl.querySelector('title')?.textContent,
-          description: domEl.querySelector('description')?.textContent,
-          pubDate: domEl.querySelector('pubDate')?.textContent,
-        };
-        return [...data, newItem]
+          title: item.querySelector('title')?.textContent,
+          description: item.querySelector('description')?.textContent,
+          pubDate: item.querySelector('pubDate')?.textContent,
+        }
+
+        state.feed.newPosts.push(newPost)
+        state.feed.posts.push(newPost)
       }
 
-      return data
-    }
-
-    const id = nanoid()
-    // обновляем фиды
-    const newFeeds = updateData(domEl, id, feeds)
-    state.feed.feeds = newFeeds
-
-    // обновляем посты
-    const items = domEl.querySelectorAll('item')
-    items.forEach((item) => {
-      const { posts } = state.feed
-      const newPosts = updateData(item, id, posts)
-      state.feed.posts = newPosts
+      console.log(state.feed.newPosts)
     })
   }
 }

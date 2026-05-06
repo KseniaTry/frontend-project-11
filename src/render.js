@@ -142,9 +142,20 @@ const renderPosts = (state) => {
   })
 }
 
+const renderNewPosts = (state) => {
+  const { newPosts } = state.feed
+  const postsContainer = document.querySelector('[data-name="posts-container"]')
+
+  newPosts.forEach((post) => {
+    const newPost = createPostItem(post)
+    newPost.className = 'd-flex gap-3 justify-content-between align-items-center border rounded p-3 bg-light shadow-sm mb-3'
+    postsContainer.append(newPost)
+  })
+}
+
 const renderRSS = (state, elements) => {
   const { status } = state.feed
-  const { feedback, form } = elements
+  const { feedback } = elements
 
   switch (status) {
     case 'idle':
@@ -160,6 +171,9 @@ const renderRSS = (state, elements) => {
       break
     case 'parseFailed':
       feedback.textContent = 'Ссылка не является RSS'
+      break
+    case 'updated':
+      renderNewPosts(state)
       break
     default:
       break
