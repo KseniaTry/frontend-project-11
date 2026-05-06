@@ -163,11 +163,12 @@ const renderRSS = (state, elements) => {
     case 'loading':
       break
     case 'success':
-      feedback.textContent = 'RSS успешно загружен'
       renderFeeds(state)
       renderPosts(state)
+      feedback.textContent = 'RSS успешно загружен'
       break
     case 'failed':
+      feedback.textContent = 'Ошибка сети'
       break
     case 'parseFailed':
       feedback.textContent = 'Ссылка не является RSS'

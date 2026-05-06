@@ -102,16 +102,10 @@ function initApp() {
         state.formData.status = 'valid'
         state.formData.value = '';
         state.formData.error = null
-        console.log('vakid')
-      })
-      .then(() => {
-        getData(value)
-        state.feed.status = 'success'
-        state.formData.status = 'valid'
+        return getData(value)
       })
       .then(() => {
         checkUpdates(value, state)
-        // state.feed.status = 'idle'
       })
       .catch((err) => {
         state.formData.error = err.message
@@ -128,7 +122,7 @@ function initApp() {
   const parseXMLtoDOM = (xml) => {
     const parser = new DOMParser()
     const result = parser.parseFromString(xml, 'application/xml')
-    console.log('parse')
+
     // Проверка на ошибку парсинга
     const error = result.querySelector('parsererror')
     if (error) {
@@ -154,7 +148,7 @@ function initApp() {
   function getData(link) {
     const modifiedLink = getAllOriginsLink(link)
 
-    axios
+    return axios
       .get(modifiedLink)
       .then(response => {
         const xml = response.data.contents.trim()
@@ -162,10 +156,12 @@ function initApp() {
       })
       .then(dom => {
         addDataToState(dom) // добавляем фиды и посты в стейт (так как добавлена новая ссылка)
+        state.feed.status = 'success'
+        state.formData.status = 'valid'
       })
       .catch(err => {
         console.error('Что-то пошло не так:', err)
-        // обработка ошибок 
+        state.feed.status = 'failed'
       })
   }
 
@@ -182,8 +178,9 @@ function initApp() {
       })
       .then(dom => {
         const { posts } = snapshot(state.feed)
-        updatePosts(dom, state, posts)
-      }).then(() => {
+        return updatePosts(dom, state, posts)
+      })
+      .then(() => {
         const { newPosts } = state.feed
         if (newPosts.length !== 0) {
           state.feed.status = 'updated'
@@ -192,23 +189,13 @@ function initApp() {
       .catch(err => {
         console.error('Что-то пошло не так:', err)
         stopUpdates(link)
+        state.feed.status = 'failed'
       })
       .finally(() => {
         const timerId = setTimeout(() => checkUpdates(link, state), 5000)
         state.feed.timers[link] = timerId
       })
   }
-
-  // function startAutoUpdate() {
-  //   const { feeds } = state.feed
-  //   console.log('start')
-  //   console.log(feeds.length)
-
-  //   feeds.forEach((feed) => {
-  //     console.log(feed)
-  //     checkUpdates(feed.link, state)
-  //   })
-  // }
 
   // добавление фидов и постов в стейт (первоначально при добавлении новой ссылки в поток)
   function addDataToState(domEl) {
@@ -241,8 +228,6 @@ function initApp() {
   function updatePosts(domEl, state, oldPosts) {
     const { feeds } = state.feed
     const feedLink = domEl.querySelector('link').textContent
-    // console.log(feedLink)
-    // console.log(feeds)
     const items = domEl.querySelectorAll('item')
     const feedId = feeds.find((feed) => feed.link === feedLink).id
 
@@ -264,7 +249,7 @@ function initApp() {
         state.feed.posts.push(newPost)
       }
 
-      console.log(state.feed.newPosts)
+      // console.log(state.feed.newPosts)
     })
   }
 }
