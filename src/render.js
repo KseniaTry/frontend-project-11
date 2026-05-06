@@ -73,22 +73,22 @@ const renderForm = (state, elements) => {
 const createPostItem = (itemState) => {
   const item = document.createElement('div')
   const title = document.createElement('h3')
-  const description = document.createElement('p')
+  // const description = document.createElement('p')
   const link = document.createElement('a')
   const linkButton = document.createElement('a')
-  const textContainer = document.createElement('div')
+  // const textContainer = document.createElement('div')
 
   link.href = itemState.link
   link.textContent = itemState.title
   link.className = 'text-decoration-none fw-bold text-dark'
-  description.textContent = itemState.description
+  // description.textContent = itemState.description
   title.append(link)
   linkButton.href = itemState.link
   linkButton.className = 'btn btn-small border border-dark rounded p-3 text-decoration-none fw-bold text-dark'
   linkButton.textContent = 'Просмотр'
 
-  textContainer.append(title, description)
-  item.append(textContainer, linkButton)
+  // textContainer.append(title)
+  item.append(title, linkButton)
 
   return item
 }
@@ -101,7 +101,7 @@ const createFeedItem = (itemState) => {
 
   link.href = itemState.link
   link.textContent = itemState.title
-  link.className = 'text-decoration-none fw-bold text-white'
+  link.className = 'text-decoration-none fw-bold text-dark'
   description.textContent = itemState.description
   title.append(link)
 
@@ -121,7 +121,7 @@ const renderFeeds = (state) => {
 
   feeds.forEach((feed) => {
     const newFeed = createFeedItem(feed)
-    newFeed.className = 'border rounded p-3 bg-secondary shadow-sm text-white mb-3'
+    newFeed.className = 'mb-3'
     feedsContainer.append(newFeed)
   })
 }
