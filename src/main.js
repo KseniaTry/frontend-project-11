@@ -55,6 +55,10 @@ function initApp() {
       status: 'idle', // 'loading', 'success', 'failed', 'parseFailed', 'updated'
       timers: {},
       newPosts: []
+    },
+    userActivity: {
+      visitedPostIds: new Set(),
+      activePostId: ''
     }
   })
 
@@ -82,13 +86,26 @@ function initApp() {
     return schema.validate(value)
   }
 
+  // обработчики
   const input = document.querySelector('[data-name="add-link-input"]')
   const form = document.querySelector('[data-name="form"]')
+  const postsContainer = document.querySelector('[data-name="posts-container"]')
+  const modal = document.getElementById('exampleModal')
 
   input.addEventListener('input', (e) => {
     state.formData.value = e.target.value
     state.formData.status = 'filling'
     state.feed.status = 'idle'
+  })
+
+  postsContainer.addEventListener('click', (e) => {
+    const targetDatasetName = e.target.dataset.name
+    if (targetDatasetName === 'watch') {
+      const post = e.target.closest('div')
+      const postId = post.dataset.id
+      state.userActivity.visitedPostIds.add(postId)
+      state.userActivity.activePostId = postId
+    }
   })
 
   form.addEventListener('submit', (e) => {
@@ -112,6 +129,7 @@ function initApp() {
         state.formData.status = 'invalid'
         console.log('invalid')
       })
+
   })
 
   const getAllOriginsLink = (link) => {
@@ -140,7 +158,6 @@ function initApp() {
     if (id) {
       clearTimeout(id);
       delete state.feed.timers[link];
-      // console.log(`Обновления для ${link} остановлены`);
     }
   }
 
@@ -156,8 +173,8 @@ function initApp() {
       })
       .then(dom => {
         addDataToState(dom) // добавляем фиды и посты в стейт (так как добавлена новая ссылка)
-        state.feed.status = 'success'
         state.formData.status = 'valid'
+        state.feed.status = 'success'
       })
       .catch(err => {
         console.error('Что-то пошло не так:', err)
@@ -166,7 +183,7 @@ function initApp() {
   }
 
   function checkUpdates(link, state) {
-    // console.log(link)
+
     const modifiedLink = getAllOriginsLink(link)
     clearTimeout(state.feed.timers[link])
 
@@ -214,7 +231,7 @@ function initApp() {
     posts.forEach((post) => {
       const newPost = {
         id: nanoid(),
-        postId: id,
+        feedId: id,
         link: post.querySelector('link')?.textContent,
         title: post.querySelector('title')?.textContent,
         description: post.querySelector('description')?.textContent,
@@ -238,7 +255,7 @@ function initApp() {
       if (!isLinkExist) {
         const newPost = {
           id: nanoid(),
-          postId: feedId,
+          feedId: feedId,
           link,
           title: item.querySelector('title')?.textContent,
           description: item.querySelector('description')?.textContent,
@@ -248,8 +265,6 @@ function initApp() {
         state.feed.newPosts.push(newPost)
         state.feed.posts.push(newPost)
       }
-
-      // console.log(state.feed.newPosts)
     })
   }
 }

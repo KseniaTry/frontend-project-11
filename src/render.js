@@ -1,4 +1,8 @@
 import { subscribe } from "valtio/vanilla"
+import { Modal } from 'bootstrap';
+
+// const modalElement =
+// const modal = new Modal(modalElement)
 
 const renderText = (i18n) => {
   document.querySelector('[data-name="title"]').textContent = i18n.t('title')
@@ -10,31 +14,24 @@ const renderText = (i18n) => {
   document.querySelector('[data-name="example-link"]').textContent = i18n.t('exampleLink')
 }
 
-const renderRSSContainer = () => {
-  const rssContainer = document.querySelector('[data-name="rss-container"]')
+const updateModal = (state, elements) => {
+  // const { modal } = elements
+  const { posts } = state.feed
+  const { activePostId } = state.userActivity
+  const { modal } = elements
 
-  if (rssContainer) {
-    return
+  if (activePostId) {
+    const postData = posts.find((post) => post.id === activePostId)
+
+    const title = modal.querySelector('.modal-title')
+    const body = modal.querySelector('.modal-body')
+
+    body.textContent = postData.description
+    title.innerHTML = postData.title
+
+    let modalInstance = Modal.getOrCreateInstance(modal)
+    modalInstance.show();
   }
-  const container = document.createElement('div')
-  const row = document.createElement('div')
-  const postsCol = document.createElement('div')
-  const feedsCol = document.createElement('div')
-
-  container.classList.add('container-fluid', 'p-5')
-  container.dataset.name = 'rss-container'
-  row.classList.add('row', 'g-3')
-  postsCol.classList.add('col-md-8', 'p-2')
-  feedsCol.classList.add('col-md-4', 'p-2')
-
-  postsCol.dataset.name = 'posts-container'
-  feedsCol.dataset.name = 'feeds-container'
-
-  const app = document.querySelector('#app')
-
-  row.append(postsCol, feedsCol)
-  container.append(row)
-  app.append(container)
 }
 
 const renderForm = (state, elements) => {
@@ -50,7 +47,7 @@ const renderForm = (state, elements) => {
       feedback.textContent = ''
       input.focus()
       form.reset()
-      renderRSSContainer()
+      // renderRSSContainer()
       break
     case 'invalid':
       input.classList.remove('is-valid')
@@ -73,22 +70,23 @@ const renderForm = (state, elements) => {
 const createPostItem = (itemState) => {
   const item = document.createElement('div')
   const title = document.createElement('h3')
-  // const description = document.createElement('p')
   const link = document.createElement('a')
-  const linkButton = document.createElement('a')
-  // const textContainer = document.createElement('div')
+  const watchButton = document.createElement('button')
 
+  item.dataset.id = itemState.id
   link.href = itemState.link
   link.textContent = itemState.title
   link.className = 'text-decoration-none fw-bold text-dark'
-  // description.textContent = itemState.description
-  title.append(link)
-  linkButton.href = itemState.link
-  linkButton.className = 'btn btn-small border border-dark rounded p-3 text-decoration-none fw-bold text-dark'
-  linkButton.textContent = 'Просмотр'
 
-  // textContainer.append(title)
-  item.append(title, linkButton)
+  title.append(link)
+
+  watchButton.className = 'btn btn-small border border-dark rounded p-3'
+  watchButton.dataset.name = 'watch'
+  watchButton.dataset.bsToggle = 'modal'
+  watchButton.dataset.bsTarget = '#exampleModal'
+  watchButton.textContent = 'Просмотр'
+
+  item.append(title, watchButton)
 
   return item
 }
@@ -186,11 +184,19 @@ const updateUi = (state) => {
     input: document.querySelector('[data-name="add-link-input"]'),
     form: document.querySelector('[data-name="form"]'),
     feedback: document.querySelector('#feedback'),
+    modal: document.getElementById('exampleModal')
   }
 
-  subscribe(state, () => {
+  subscribe(state.formData, () => {
     renderForm(state, elements)
+  })
+
+  subscribe(state.feed, () => {
     renderRSS(state, elements)
+  })
+
+  subscribe(state.userActivity, () => {
+    updateModal(state, elements)
   })
 }
 
