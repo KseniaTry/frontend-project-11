@@ -90,7 +90,6 @@ function initApp() {
   const input = document.querySelector('[data-name="add-link-input"]')
   const form = document.querySelector('[data-name="form"]')
   const postsContainer = document.querySelector('[data-name="posts-container"]')
-  const modal = document.getElementById('exampleModal')
 
   input.addEventListener('input', (e) => {
     state.formData.value = e.target.value

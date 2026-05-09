@@ -1,9 +1,6 @@
 import { subscribe } from "valtio/vanilla"
 import { Modal } from 'bootstrap';
 
-// const modalElement =
-// const modal = new Modal(modalElement)
-
 const renderText = (i18n) => {
   document.querySelector('[data-name="title"]').textContent = i18n.t('title')
   document.querySelector('[data-name="description"]').textContent = i18n.t('description')
@@ -15,7 +12,6 @@ const renderText = (i18n) => {
 }
 
 const updateModal = (state, elements) => {
-  // const { modal } = elements
   const { posts } = state.feed
   const { activePostId } = state.userActivity
   const { modal } = elements
@@ -47,7 +43,6 @@ const renderForm = (state, elements) => {
       feedback.textContent = ''
       input.focus()
       form.reset()
-      // renderRSSContainer()
       break
     case 'invalid':
       input.classList.remove('is-valid')
@@ -94,16 +89,14 @@ const createPostItem = (itemState) => {
 const createFeedItem = (itemState) => {
   const item = document.createElement('div')
   const title = document.createElement('h3')
-  const description = document.createElement('p')
   const link = document.createElement('a')
 
   link.href = itemState.link
   link.textContent = itemState.title
   link.className = 'text-decoration-none fw-bold text-dark'
-  description.textContent = itemState.description
-  title.append(link)
 
-  item.append(title, description)
+  title.append(link)
+  item.append(title)
 
   return item
 }
@@ -135,7 +128,7 @@ const renderPosts = (state) => {
 
   posts.forEach((post) => {
     const newPost = createPostItem(post)
-    newPost.className = 'd-flex gap-3 justify-content-between align-items-center border rounded p-3 bg-light shadow-sm mb-3'
+    newPost.className = 'd-flex gap-3 justify-content-between align-items-center mb-3'
     postsContainer.append(newPost)
   })
 }
@@ -146,7 +139,7 @@ const renderNewPosts = (state) => {
 
   newPosts.forEach((post) => {
     const newPost = createPostItem(post)
-    newPost.className = 'd-flex gap-3 justify-content-between align-items-center border rounded p-3 bg-light shadow-sm mb-3'
+    newPost.className = 'd-flex gap-3 justify-content-between align-items-center mb-3'
     postsContainer.append(newPost)
   })
 }
