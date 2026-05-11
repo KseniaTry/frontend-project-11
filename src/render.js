@@ -21,9 +21,11 @@ const updateModal = (state, elements) => {
 
     const title = modal.querySelector('.modal-title')
     const body = modal.querySelector('.modal-body')
+    const readButton = modal.querySelector('[data-name="read"]')
 
     body.textContent = postData.description
     title.innerHTML = postData.title
+    readButton.href = postData.link
 
     let modalInstance = Modal.getOrCreateInstance(modal)
     modalInstance.show();
