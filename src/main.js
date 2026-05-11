@@ -127,7 +127,6 @@ function initApp() {
       .catch((err) => {
         state.formData.error = err.message
         state.formData.status = 'invalid'
-        console.log('invalid')
       })
 
   })
@@ -146,7 +145,6 @@ function initApp() {
     if (error) {
       state.feed.status = 'parseFailed'
       state.formData.status = 'invalid'
-      console.log(state.feed.status)
       throw new Error('parseError')
     }
 

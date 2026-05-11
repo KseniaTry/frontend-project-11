@@ -182,7 +182,7 @@ const renderRSS = (state, elements) => {
       feedback.textContent = 'Ошибка сети'
       break
     case 'parseFailed':
-      feedback.textContent = 'Ссылка не является RSS'
+      feedback.textContent = 'Ресурс не содержит валидный RSS'
       break
     case 'updated':
       renderNewPosts(state)
