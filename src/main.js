@@ -99,6 +99,7 @@ function initApp() {
 
   postsContainer.addEventListener('click', (e) => {
     const targetDatasetName = e.target.dataset.name
+
     if (targetDatasetName === 'watch') {
       const post = e.target.closest('div')
       const postId = post.dataset.id

@@ -32,6 +32,23 @@ const updateModal = (state, elements) => {
   }
 }
 
+const updateVisitedPosts = (state, elements) => {
+  const { visitedPostIds } = state.userActivity
+  const { postsContainer } = elements
+  const allPosts = postsContainer.querySelectorAll('[data-name="post-item"]')
+
+  allPosts.forEach((post) => {
+    const postId = post.dataset.id
+    const isVisited = visitedPostIds.has(postId)
+    if (isVisited) {
+      const link = post.querySelector('a')
+      link.classList.add('fw-normal')
+      link.classList.remove('fw-bold')
+    }
+
+  })
+}
+
 const renderForm = (state, elements) => {
   const { status, error } = state.formData
   const { input, feedback, form } = elements
@@ -70,6 +87,7 @@ const createPostItem = (itemState) => {
   const link = document.createElement('a')
   const watchButton = document.createElement('button')
 
+  item.dataset.name = 'post-item'
   item.dataset.id = itemState.id
   link.href = itemState.link
   link.textContent = itemState.title
@@ -179,7 +197,8 @@ const updateUi = (state) => {
     input: document.querySelector('[data-name="add-link-input"]'),
     form: document.querySelector('[data-name="form"]'),
     feedback: document.querySelector('#feedback'),
-    modal: document.getElementById('exampleModal')
+    modal: document.getElementById('exampleModal'),
+    postsContainer: document.querySelector('[data-name="posts-container"]')
   }
 
   subscribe(state.formData, () => {
@@ -192,6 +211,7 @@ const updateUi = (state) => {
 
   subscribe(state.userActivity, () => {
     updateModal(state, elements)
+    updateVisitedPosts(state, elements)
   })
 }
 
