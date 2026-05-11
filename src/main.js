@@ -128,7 +128,6 @@ function initApp() {
         state.formData.error = err.message
         state.formData.status = 'invalid'
       })
-
   })
 
   const getAllOriginsLink = (link) => {
