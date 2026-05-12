@@ -170,6 +170,7 @@ const renderRSS = (state, elements) => {
 
   switch (status) {
     case 'idle':
+      feedback.textContent = ''
       break
     case 'loading':
       break

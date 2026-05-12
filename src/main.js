@@ -92,7 +92,8 @@ function initApp() {
   const postsContainer = document.querySelector('[data-name="posts-container"]')
 
   input.addEventListener('input', (e) => {
-    state.formData.value = e.target.value
+    const value = e.target.value
+    state.formData.value = value
     state.formData.status = 'filling'
     state.feed.status = 'idle'
   })
@@ -115,6 +116,7 @@ function initApp() {
     // get form data использовать!!
     validate(state)
       .then(() => {
+        // console.log('1. Валидация пройдена');
         state.formData.links.push(value)
         state.formData.status = 'valid'
         state.formData.value = '';
@@ -122,9 +124,11 @@ function initApp() {
         return getData(value)
       })
       .then(() => {
+        // console.log('2. Данные получены');
         checkUpdates(value, state)
       })
       .catch((err) => {
+        // console.log('3. Ошибка поймана:', err.message);
         state.formData.error = err.message
         state.formData.status = 'invalid'
       })
@@ -140,10 +144,8 @@ function initApp() {
     const result = parser.parseFromString(xml, 'application/xml')
 
     // Проверка на ошибку парсинга
-    const error = result.querySelector('parsererror')
-    if (error) {
-      state.feed.status = 'parseFailed'
-      state.formData.status = 'invalid'
+    const err = result.querySelector('parsererror')
+    if (err) {
       throw new Error('parseError')
     }
 
@@ -174,8 +176,13 @@ function initApp() {
         state.feed.status = 'success'
       })
       .catch(err => {
-        console.error('Что-то пошло не так:', err)
-        state.feed.status = 'failed'
+        if (err.message === 'parseError') {
+          state.feed.status = 'parseFailed'
+        } else {
+          state.feed.status = 'failed'
+        }
+
+        state.formData.status = 'invalid'
       })
   }
 
@@ -201,9 +208,13 @@ function initApp() {
         }
       })
       .catch(err => {
-        console.error('Что-то пошло не так:', err)
+        if (err.message === 'parseError') {
+          state.feed.status = 'parseFailed'
+        } else {
+          state.feed.status = 'failed'
+        }
+        state.formData.status = 'invalid'
         stopUpdates(link)
-        state.feed.status = 'failed'
       })
       .finally(() => {
         const timerId = setTimeout(() => checkUpdates(link, state), 5000)
