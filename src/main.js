@@ -29,7 +29,7 @@ i18n.init({
         loadingResult: {
           success: 'RSS успешно загружен',
           parseFailed: 'Ссылка не является RSS',
-          loadingFailed: 'Ошибка загрузки RSS ленты'
+          loadingFailed: 'Ошибка сети'
         }
       }
     }

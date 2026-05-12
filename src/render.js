@@ -110,13 +110,15 @@ const createFeedItem = (itemState) => {
   const item = document.createElement('div')
   const title = document.createElement('h3')
   const link = document.createElement('a')
+  const description = document.createElement('p')
 
   link.href = itemState.link
   link.textContent = itemState.title
   link.className = 'text-decoration-none fw-bold text-dark'
+  description.textContent = itemState.description
 
   title.append(link)
-  item.append(title)
+  item.append(title, description)
 
   return item
 }
