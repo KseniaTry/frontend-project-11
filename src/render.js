@@ -98,7 +98,7 @@ const createPostItem = (itemState) => {
   watchButton.className = 'btn btn-small border border-dark rounded p-3'
   watchButton.dataset.name = 'watch'
   watchButton.dataset.bsToggle = 'modal'
-  watchButton.dataset.bsTarget = '#exampleModal'
+  watchButton.dataset.bsTarget = '#modal'
   watchButton.textContent = 'Просмотр'
 
   item.append(title, watchButton)
@@ -198,7 +198,7 @@ const updateUi = (state) => {
     input: document.querySelector('[data-name="add-link-input"]'),
     form: document.querySelector('[data-name="form"]'),
     feedback: document.querySelector('#feedback'),
-    modal: document.getElementById('exampleModal'),
+    modal: document.getElementById('modal'),
     postsContainer: document.querySelector('[data-name="posts-container"]')
   }
 
