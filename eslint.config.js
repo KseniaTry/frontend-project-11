@@ -6,7 +6,7 @@ export default [
     ignores: [
       "**/dist/**",
       "dist",
-      "node_modules/**"
+      "node_modules/**",
     ],
   },
 
@@ -24,7 +24,7 @@ export default [
     rules: {
       "no-console": "warn",     // Предупреждать об использовании console.log
       "prefer-promise-reject-errors": "error", // Ошибка, если Promise.reject без Error
-      "no-async-promise-executor": "error"     // Запрещает async внутри new Promise
-    }
-  }
+      "no-async-promise-executor": "error",     // Запрещает async внутри new Promise
+    },
+  },
 ];
