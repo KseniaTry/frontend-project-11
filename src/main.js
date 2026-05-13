@@ -9,6 +9,18 @@ import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { resources } from './resources'
 
+const renderInitError = (err) => {
+  const feedback = document.getElementById('feedback')
+
+  if (feedback) {
+    feedback.classList.remove('text-success')
+    feedback.classList.add('text-danger')
+    feedback.textContent = 'Ошибка инициализации приложения. Пожалуйста, перезагрузите страницу'
+  }
+
+  throw err
+}
+
 function initApp() {
   const i18n = i18next.createInstance()
 
@@ -108,6 +120,7 @@ function initApp() {
           })
       })
 
+      // парсинг
       const getAllOriginsLink = (link) => {
         const normalized = encodeURIComponent(link)
         return `https://allorigins.hexlet.app/get?disableCache=true&url=${normalized}`
@@ -161,6 +174,7 @@ function initApp() {
           })
       }
 
+      // проверяем обновление каждые 5 сек
       function checkUpdates(link, state) {
         const modifiedLink = getAllOriginsLink(link)
         clearTimeout(state.feed.timers[link])
@@ -251,7 +265,7 @@ function initApp() {
         })
       }
     })
-    .catch(err => console.log(err))
+    .catch(err => renderInitError(err))
 }
 
 initApp()
