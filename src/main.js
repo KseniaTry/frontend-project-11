@@ -8,7 +8,7 @@ import i18next from 'i18next'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 
-const i18n = i18next.createInstance();
+const i18n = i18next.createInstance()
 
 i18n.init({
   lng: 'ru',
@@ -20,7 +20,7 @@ i18n.init({
         errors: {
           url: 'Ссылка должна быть валидным URL',
           required: 'Не должно быть пустым',
-          notOneOf: 'RSS уже существует'
+          notOneOf: 'RSS уже существует',
         },
         label: 'Ссылка RSS',
         add: 'Добавить',
@@ -29,16 +29,16 @@ i18n.init({
         loadingResult: {
           success: 'RSS успешно загружен',
           parseFailed: 'Ссылка не является RSS',
-          loadingFailed: 'Ошибка сети'
-        }
-      }
-    }
-  }
+          loadingFailed: 'Ошибка сети',
+        },
+      },
+    },
+  },
 })
   .then(() => {
     initApp()
   })
-  .catch((err) => console.log(err))
+  .catch(err => console.log(err))
 
 
 function initApp() {
