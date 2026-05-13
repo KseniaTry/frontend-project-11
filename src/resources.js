@@ -22,10 +22,9 @@ const resources = {
       modal: {
         read: 'Читать полностью',
         close: 'Закрыть',
-      }
+      },
     },
   },
 }
 
 export { resources }
-

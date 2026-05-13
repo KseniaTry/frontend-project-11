@@ -14,7 +14,7 @@ function initApp() {
 
   i18n.init({
     lng: 'ru',
-    resources: resources
+    resources: resources,
   })
     .then(() => {
       const state = proxy({
