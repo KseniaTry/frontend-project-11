@@ -102,7 +102,7 @@ function initApp() {
     const targetDatasetName = e.target.dataset.name
 
     if (targetDatasetName === 'watch') {
-      const post = e.target.closest('div')
+      const post = e.target.closest('li')
       const postId = post.dataset.id
       state.userActivity.visitedPostIds.add(postId)
       state.userActivity.activePostId = postId
