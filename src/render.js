@@ -82,7 +82,7 @@ const renderForm = (state, elements) => {
 }
 
 const createPostItem = (itemState) => {
-  const item = document.createElement('div')
+  const item = document.createElement('li')
   const title = document.createElement('h3')
   const link = document.createElement('a')
   const watchButton = document.createElement('button')
@@ -143,26 +143,29 @@ const renderPosts = (state) => {
   const postsContainer = document.querySelector('[data-name="posts-container"]')
   postsContainer.innerHTML = ''
   const postsTitle = document.createElement('h2')
+  const list = document.createElement('ul')
+  list.dataset.name = 'posts-list'
+  list.className = 'list-unstyled'
   postsTitle.textContent = 'Посты'
-  postsContainer.append(postsTitle)
+  postsContainer.append(postsTitle, list)
 
   const { posts } = state.feed
 
   posts.forEach((post) => {
     const newPost = createPostItem(post)
     newPost.className = 'd-flex gap-3 justify-content-between align-items-center mb-3'
-    postsContainer.append(newPost)
+    list.append(newPost)
   })
 }
 
 const renderNewPosts = (state) => {
   const { newPosts } = state.feed
-  const postsContainer = document.querySelector('[data-name="posts-container"]')
+  const postsList = document.querySelector('[data-name="posts-list"]')
 
   newPosts.forEach((post) => {
     const newPost = createPostItem(post)
     newPost.className = 'd-flex gap-3 justify-content-between align-items-center mb-3'
-    postsContainer.append(newPost)
+    postsList.append(newPost)
   })
 }
 
