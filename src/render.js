@@ -34,8 +34,9 @@ const updateModal = (state, elements) => {
 
 const updateVisitedPosts = (state, elements) => {
   const { visitedPostIds } = state.userActivity
-  const { postsList } = elements
-  const allPosts = postsList.querySelectorAll('[data-name="post-item"]')
+  const { postsContainer } = elements
+
+  const allPosts = postsContainer.querySelectorAll('[data-name="post-item"]')
 
   allPosts.forEach((post) => {
     const postId = post.dataset.id
@@ -91,11 +92,12 @@ const createPostItem = (itemState) => {
   item.dataset.id = itemState.id
   link.href = itemState.link
   link.textContent = itemState.title
-  link.className = 'text-decoration-none fw-bold text-dark'
+  link.className = 'text-decoration-none fw-bold text-dark link-secondary'
+  title.className = 'h5'
 
   title.append(link)
 
-  watchButton.className = 'btn btn-small border border-dark rounded p-3'
+  watchButton.className = 'btn btn-small border border-dark rounded'
   watchButton.dataset.name = 'watch'
   watchButton.dataset.bsToggle = 'modal'
   watchButton.dataset.bsTarget = '#modal'
@@ -131,6 +133,7 @@ const renderFeeds = (state) => {
   list.dataset.name = 'feeds-list'
   list.className = 'list-unstyled'
   feedsTitle.textContent = 'Фиды'
+  feedsTitle.className = 'mb-4'
   feedsContainer.append(feedsTitle, list)
 
   const { feeds } = state.feed
@@ -150,6 +153,7 @@ const renderPosts = (state) => {
   list.dataset.name = 'posts-list'
   list.className = 'list-unstyled'
   postsTitle.textContent = 'Посты'
+  postsTitle.className = 'mb-4'
   postsContainer.append(postsTitle, list)
 
   const { posts } = state.feed
@@ -207,7 +211,7 @@ const updateUi = (state) => {
     form: document.querySelector('[data-name="form"]'),
     feedback: document.querySelector('#feedback'),
     modal: document.getElementById('modal'),
-    postsList: document.querySelector('[data-name="posts-list"]')
+    postsContainer: document.querySelector('[data-name="posts-container"]')
   }
 
   subscribe(state.formData, () => {
