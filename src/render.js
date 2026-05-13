@@ -9,6 +9,8 @@ const renderText = (i18n) => {
   document.querySelector('[data-name="add-button"]').textContent = i18n.t('add')
   document.querySelector('[data-name="example-text"]').textContent = i18n.t('example')
   document.querySelector('[data-name="example-link"]').textContent = i18n.t('exampleLink')
+  document.querySelector('[data-name="read"]').textContent = i18n.t('modal.read')
+  document.querySelector('[data-name="close"]').textContent = i18n.t('modal.close')
 }
 
 const updateModal = (state, elements) => {
@@ -124,14 +126,14 @@ const createFeedItem = (itemState) => {
   return item
 }
 
-const renderFeeds = (state) => {
+const renderFeeds = (state, i18n) => {
   const feedsContainer = document.querySelector('[data-name="feeds-container"]')
   feedsContainer.innerHTML = ''
   const feedsTitle = document.createElement('h2')
   const list = document.createElement('ul')
   list.dataset.name = 'feeds-list'
   list.className = 'list-unstyled'
-  feedsTitle.textContent = 'Фиды'
+  feedsTitle.textContent = i18n.t('feeds')
   feedsTitle.className = 'mb-4'
   feedsContainer.append(feedsTitle, list)
 
@@ -144,14 +146,14 @@ const renderFeeds = (state) => {
   })
 }
 
-const renderPosts = (state) => {
+const renderPosts = (state, i18n) => {
   const postsContainer = document.querySelector('[data-name="posts-container"]')
   postsContainer.innerHTML = ''
   const postsTitle = document.createElement('h2')
   const list = document.createElement('ul')
   list.dataset.name = 'posts-list'
   list.className = 'list-unstyled'
-  postsTitle.textContent = 'Посты'
+  postsTitle.textContent = i18n.t('posts')
   postsTitle.className = 'mb-4'
   postsContainer.append(postsTitle, list)
 
@@ -175,7 +177,7 @@ const renderNewPosts = (state) => {
   })
 }
 
-const renderRSS = (state, elements) => {
+const renderRSS = (state, elements, i18n) => {
   const { status } = state.feed
   const { feedback } = elements
 
@@ -186,15 +188,15 @@ const renderRSS = (state, elements) => {
     case 'loading':
       break
     case 'success':
-      renderFeeds(state)
-      renderPosts(state)
-      feedback.textContent = 'RSS успешно загружен'
+      renderFeeds(state, i18n)
+      renderPosts(state, i18n)
+      feedback.textContent = i18n.t('loadingResult.success') // 'RSS успешно загружен'
       break
     case 'failed':
-      feedback.textContent = 'Ошибка сети'
+      feedback.textContent = i18n.t('loadingResult.loadingFailed') // 'Ошибка сети'
       break
     case 'parseFailed':
-      feedback.textContent = 'Ресурс не содержит валидный RSS'
+      feedback.textContent = i18n.t('loadingResult.parseFailed') // 'Ресурс не содержит валидный RSS'
       break
     case 'updated':
       renderNewPosts(state)
@@ -204,7 +206,7 @@ const renderRSS = (state, elements) => {
   }
 }
 
-const updateUi = (state) => {
+const updateUi = (state, i18n) => {
   const elements = {
     input: document.querySelector('[data-name="add-link-input"]'),
     form: document.querySelector('[data-name="form"]'),
@@ -213,12 +215,14 @@ const updateUi = (state) => {
     postsContainer: document.querySelector('[data-name="posts-container"]'),
   }
 
+  renderText(i18n)
+
   subscribe(state.formData, () => {
     renderForm(state, elements)
   })
 
   subscribe(state.feed, () => {
-    renderRSS(state, elements)
+    renderRSS(state, elements, i18n)
   })
 
   subscribe(state.userActivity, () => {
