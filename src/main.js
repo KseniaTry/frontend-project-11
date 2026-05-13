@@ -40,7 +40,6 @@ i18n.init({
   })
   .catch(err => console.log(err))
 
-
 function initApp() {
   const state = proxy({
     formData: {
@@ -54,12 +53,12 @@ function initApp() {
       posts: [],
       status: 'idle', // 'loading', 'success', 'failed', 'parseFailed', 'updated'
       timers: {},
-      newPosts: []
+      newPosts: [],
     },
     userActivity: {
       visitedPostIds: new Set(),
-      activePostId: ''
-    }
+      activePostId: '',
+    },
   })
 
   // для использования i18n как словаря для отображения текста ошибок
@@ -67,11 +66,11 @@ function initApp() {
     setLocale({
       mixed: {
         required: () => i18n.t('errors.required'),
-        notOneOf: () => i18n.t('errors.notOneOf')
+        notOneOf: () => i18n.t('errors.notOneOf'),
       },
       string: {
-        url: () => i18n.t('errors.url')
-      }
+        url: () => i18n.t('errors.url'),
+      },
     })
   }
   // инициация один раз
@@ -119,7 +118,7 @@ function initApp() {
         // console.log('1. Валидация пройдена');
         state.formData.links.push(value)
         state.formData.status = 'valid'
-        state.formData.value = '';
+        state.formData.value = ''
         state.formData.error = null
         return getData(value)
       })
@@ -153,10 +152,10 @@ function initApp() {
   }
 
   function stopUpdates(link) {
-    const id = state.feed.timers[link];
+    const id = state.feed.timers[link]
     if (id) {
-      clearTimeout(id);
-      delete state.feed.timers[link];
+      clearTimeout(id)
+      delete state.feed.timers[link]
     }
   }
 
@@ -166,19 +165,20 @@ function initApp() {
 
     return axios
       .get(modifiedLink)
-      .then(response => {
+      .then((response) => {
         const xml = response.data.contents.trim()
         return parseXMLtoDOM(xml)
       })
-      .then(dom => {
+      .then((dom) => {
         addDataToState(dom) // добавляем фиды и посты в стейт (так как добавлена новая ссылка)
         state.formData.status = 'valid'
         state.feed.status = 'success'
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.message === 'parseError') {
           state.feed.status = 'parseFailed'
-        } else {
+        }
+        else {
           state.feed.status = 'failed'
         }
 
@@ -187,17 +187,16 @@ function initApp() {
   }
 
   function checkUpdates(link, state) {
-
     const modifiedLink = getAllOriginsLink(link)
     clearTimeout(state.feed.timers[link])
 
     axios
       .get(modifiedLink)
-      .then(response => {
+      .then((response) => {
         const xml = response.data.contents.trim()
         return parseXMLtoDOM(xml)
       })
-      .then(dom => {
+      .then((dom) => {
         const { posts } = snapshot(state.feed)
         return updatePosts(dom, state, posts)
       })
@@ -207,10 +206,11 @@ function initApp() {
           state.feed.status = 'updated'
         }
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.message === 'parseError') {
           state.feed.status = 'parseFailed'
-        } else {
+        }
+        else {
           state.feed.status = 'failed'
         }
         state.formData.status = 'invalid'
@@ -231,7 +231,7 @@ function initApp() {
       title: domEl.querySelector('title')?.textContent,
       description: domEl.querySelector('description')?.textContent,
       pubDate: domEl.querySelector('pubDate')?.textContent,
-    };
+    }
 
     state.feed.feeds.push(newFeed)
 
@@ -244,7 +244,7 @@ function initApp() {
         title: post.querySelector('title')?.textContent,
         description: post.querySelector('description')?.textContent,
         pubDate: post.querySelector('pubDate')?.textContent,
-      };
+      }
       state.feed.posts.push(newPost)
     })
   }
@@ -254,11 +254,11 @@ function initApp() {
     const { feeds } = state.feed
     const feedLink = domEl.querySelector('link').textContent
     const items = domEl.querySelectorAll('item')
-    const feedId = feeds.find((feed) => feed.link === feedLink).id
+    const feedId = feeds.find(feed => feed.link === feedLink).id
 
     items.forEach((item) => {
       const link = item.querySelector('link')?.textContent
-      const isLinkExist = oldPosts.some((oldPost) => oldPost.link === link);
+      const isLinkExist = oldPosts.some(oldPost => oldPost.link === link)
 
       if (!isLinkExist) {
         const newPost = {

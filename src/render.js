@@ -1,5 +1,5 @@
-import { subscribe } from "valtio/vanilla"
-import { Modal } from 'bootstrap';
+import { subscribe } from 'valtio/vanilla'
+import { Modal } from 'bootstrap'
 
 const renderText = (i18n) => {
   document.querySelector('[data-name="title"]').textContent = i18n.t('title')
@@ -17,7 +17,7 @@ const updateModal = (state, elements) => {
   const { modal } = elements
 
   if (activePostId) {
-    const postData = posts.find((post) => post.id === activePostId)
+    const postData = posts.find(post => post.id === activePostId)
 
     const title = modal.querySelector('.modal-title')
     const body = modal.querySelector('.modal-body')
@@ -28,7 +28,7 @@ const updateModal = (state, elements) => {
     readButton.href = postData.link
 
     let modalInstance = Modal.getOrCreateInstance(modal)
-    modalInstance.show();
+    modalInstance.show()
   }
 }
 
@@ -46,7 +46,6 @@ const updateVisitedPosts = (state, elements) => {
       link.classList.add('fw-normal')
       link.classList.remove('fw-bold')
     }
-
   })
 }
 
@@ -211,7 +210,7 @@ const updateUi = (state) => {
     form: document.querySelector('[data-name="form"]'),
     feedback: document.querySelector('#feedback'),
     modal: document.getElementById('modal'),
-    postsContainer: document.querySelector('[data-name="posts-container"]')
+    postsContainer: document.querySelector('[data-name="posts-container"]'),
   }
 
   subscribe(state.formData, () => {
