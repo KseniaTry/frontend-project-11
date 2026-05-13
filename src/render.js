@@ -34,8 +34,8 @@ const updateModal = (state, elements) => {
 
 const updateVisitedPosts = (state, elements) => {
   const { visitedPostIds } = state.userActivity
-  const { postsContainer } = elements
-  const allPosts = postsContainer.querySelectorAll('[data-name="post-item"]')
+  const { postsList } = elements
+  const allPosts = postsList.querySelectorAll('[data-name="post-item"]')
 
   allPosts.forEach((post) => {
     const postId = post.dataset.id
@@ -107,7 +107,7 @@ const createPostItem = (itemState) => {
 }
 
 const createFeedItem = (itemState) => {
-  const item = document.createElement('div')
+  const item = document.createElement('li')
   const title = document.createElement('h3')
   const link = document.createElement('a')
   const description = document.createElement('p')
@@ -127,15 +127,18 @@ const renderFeeds = (state) => {
   const feedsContainer = document.querySelector('[data-name="feeds-container"]')
   feedsContainer.innerHTML = ''
   const feedsTitle = document.createElement('h2')
+  const list = document.createElement('ul')
+  list.dataset.name = 'feeds-list'
+  list.className = 'list-unstyled'
   feedsTitle.textContent = 'Фиды'
-  feedsContainer.append(feedsTitle)
+  feedsContainer.append(feedsTitle, list)
 
   const { feeds } = state.feed
 
   feeds.forEach((feed) => {
     const newFeed = createFeedItem(feed)
     newFeed.className = 'mb-3'
-    feedsContainer.append(newFeed)
+    list.append(newFeed)
   })
 }
 
@@ -204,7 +207,7 @@ const updateUi = (state) => {
     form: document.querySelector('[data-name="form"]'),
     feedback: document.querySelector('#feedback'),
     modal: document.getElementById('modal'),
-    postsContainer: document.querySelector('[data-name="posts-container"]')
+    postsList: document.querySelector('[data-name="posts-list"]')
   }
 
   subscribe(state.formData, () => {
